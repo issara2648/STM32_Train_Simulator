@@ -94,6 +94,19 @@ Status: CONFIRMED
 | D12 | PA6 | Emergency indication |
 | D13 | PA5 | Stopped indication |
 
+### LED Electrical Behavior
+
+Status: CONFIRMED BY HARDWARE TEST
+
+The four Training Shield LEDs were verified as active-high for this project configuration.
+
+GPIO output logic 1 = LED ON.
+GPIO output logic 0 = LED OFF.
+
+Verified during M01 hardware bring-up.
+
+
+
 ### Normal Meaning
 
 Running:

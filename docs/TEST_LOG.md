@@ -9,7 +9,7 @@ Do not mark a milestone PASS until it has been tested on the real STM32 board.
 | ID | Feature | Build | Hardware | Commit | Notes |
 |---|---|---|---|---|---|
 M00 | Project setup and documentation | IN PROGRESS | N/A | - | |
-| M01 | Board bring-up and LEDs | NOT STARTED | NOT STARTED | - | |
+M01 | Board bring-up and LEDs | PASS | Build 0 errors, 0 warnings. Hardware verified D10 -> D11 -> D12 -> D13 sequential operation. | - | |
 | M02 | Four push buttons | NOT STARTED | NOT STARTED | - | |
 | M03 | 7-Segment | NOT STARTED | NOT STARTED | - | |
 | M04 | Timer/timebase | NOT STARTED | NOT STARTED | - | |

@@ -18,12 +18,46 @@
 
 #include <stdint.h>
 
-#if !defined(__SOFT_FP__) && defined(__ARM_FP)
-  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
-#endif
+#include "led_driver.h"
 
+/* Private includes */
+
+/* Private typedef */
+
+/* Private enum */
+
+/* Private struct */
+
+/* Private union */
+
+/* Private define */
+
+/* Private macro */
+
+/* Private constants */
+
+/* Private variables */
+
+/* External variables */
+
+/* Private function prototypes */
+
+/* Private user code */
+
+/* Main function, if applicable */
 int main(void)
 {
-    /* Loop forever */
-	for(;;);
+    LED_Init();
+
+    while (1U)
+    {
+        LED_RunDiagnosticSequence();
+    }
 }
+
+/* Public functions */
+
+/* Callback functions */
+
+/* Private functions */
+
