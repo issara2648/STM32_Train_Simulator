@@ -22,6 +22,7 @@
 #include "led_driver.h"
 #include "seven_segment_driver.h"
 #include "timebase_driver.h"
+#include "uart_driver.h"
 
 /* Private includes */
 
@@ -61,6 +62,10 @@ int main(void)
     SEG7_Init();
     TIMEBASE_Init();
 
+    /* Initialize UART (M05) and send startup diagnostic message */
+    UART_Init();
+    (void)UART_SendString("STM32 Train Simulator UART Ready\r\n");
+
     digit_value = 0U;
     previous_timestamp_ms = TIMEBASE_GetMilliseconds();
     SEG7_DisplayDigit(digit_value);
@@ -79,6 +84,26 @@ int main(void)
             {
                 digit_value = 0U;
             }
+        }
+
+        /* UART RX processing: non-blocking echo diagnostic */
+        if (UART_IsRxAvailable() > 0U)
+        {
+            char rxch;
+            char response[8U];
+
+            rxch = UART_ReadChar();
+
+            response[0] = 'R';
+            response[1] = 'X';
+            response[2] = ':';
+            response[3] = ' ';
+            response[4] = rxch;
+            response[5] = '\r';
+            response[6] = '\n';
+            response[7] = '\0';
+
+            (void)UART_SendString(response);
         }
     }
 }

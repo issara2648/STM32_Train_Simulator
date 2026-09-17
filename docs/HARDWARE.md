@@ -254,20 +254,31 @@ e = Emergency acknowledge / recovery
 
 ### Current Mapping
 
-Proposed peripheral:
+Peripheral:
 
 USART2
 
-Proposed pins:
+Pins:
 
 PA2 = USART2 TX
 PA3 = USART2 RX
 
 Status:
 
-PROPOSED - NOT YET LOCKED
+IMPLEMENTED (NOT HARDWARE-VERIFIED)
 
-Do not implement UART register configuration until this mapping has been verified against the STM32F411RE / NUCLEO-F411RE hardware configuration.
+Notes:
+
+This project implements an interrupt-driven USART2 configuration for the M05 UART bring-up. Configuration summary:
+
+- TX: PA2 AF7
+- RX: PA3 AF7
+- APB1 clock: 16 MHz
+- Baud: 115200
+- Frame: 8 data bits, no parity, 1 stop bit (8N1)
+- RX and TX are interrupt-driven (RXNE and TXE interrupts)
+
+The implementation is recorded here but has not yet been verified on the physical board.
 
 ---
 

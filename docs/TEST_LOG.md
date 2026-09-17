@@ -13,7 +13,7 @@ M01 | Board bring-up and LEDs | PASS | Build 0 errors, 0 warnings. Hardware veri
 M02 | Four push buttons | PASS | Build 0 errors, 0 warnings. Hardware verified D2/PA10, D3/PB3, D4/PB5, D5/PB4 using pull-up active-low inputs. Individual and simultaneous button presses passed.| - | |
 M03 | 7-Segment | PASS | Build 0 errors, 0 warnings. Hardware verified 4-bit interface PC7/PA8/PB10/PA9. Display correctly cycles 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 and repeats. | - | |
 M04 | Timer / Timebase | PASS | Build 0 errors, 0 warnings. TIM2 hardware timebase verified on physical board. Non-blocking 7-segment diagnostic correctly cycles 0 -> 9 at approximately 1000 ms per digit using the millisecond timebase. | - | |
-| M05 | UART TX/RX Interrupt | NOT STARTED | NOT STARTED | - | |
+M05 | UART TX/RX Interrupt | PASS | Build 0 errors, 0 warnings. USART2 PA2/PA3 AF7 at 115200 8N1 verified on physical board. Interrupt-driven RX/TX confirmed by startup message and successful character echo.| - | |
 | M06 | LDR + ADC | NOT STARTED | NOT STARTED | - | |
 | M07 | RFID + SPI | NOT STARTED | NOT STARTED | - | |
 | M08 | Deadman System | NOT STARTED | NOT STARTED | - | |
