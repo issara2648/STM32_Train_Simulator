@@ -25,6 +25,7 @@ M05 | UART TX/RX Interrupt | PASS | Build 0 errors, 0 warnings. USART2 PA2/PA3 A
 | M14 | Emergency Integration | NOT STARTED | NOT STARTED | - | |
 | M15 | Full Integration | NOT STARTED | NOT STARTED | - | |
 | M16 | MISRA / Final Cleanup | NOT STARTED | NOT STARTED | - | |
+| M06 | LDR + ADC | IMPLEMENTED | AWAITING HARDWARE TEST | - | ADC1 PA1 interrupt-driven sampling implemented; reporting via UART every 1000 ms. |
 
 ---
 

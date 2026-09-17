@@ -23,6 +23,7 @@
 #include "seven_segment_driver.h"
 #include "timebase_driver.h"
 #include "uart_driver.h"
+#include "ldr_driver.h"
 
 /* Private includes */
 
@@ -61,6 +62,9 @@ int main(void)
     BUTTON_Init();
     SEG7_Init();
     TIMEBASE_Init();
+
+    /* Initialize LDR ADC (M06) */
+    LDR_Init();
 
     /* Initialize UART (M05) and send startup diagnostic message */
     UART_Init();
@@ -104,6 +108,79 @@ int main(void)
             response[7] = '\0';
 
             (void)UART_SendString(response);
+        }
+
+        /* LDR sampling: request conversion every 100 ms (non-blocking) */
+        if ((current_timestamp_ms - previous_timestamp_ms) >= MAIN_SEG7_UPDATE_INTERVAL_MS)
+        {
+            /* reuse previous_timestamp_ms tick for 1000 ms seg7 update; do nothing here */
+        }
+
+        /* Use separate timestamps for LDR conversion and reporting */
+        static uint32_t ldr_prev_conv_ts = 0U;
+        static uint32_t ldr_prev_report_ts = 0U;
+
+        /* Start conversion every 100 ms */
+        if ((current_timestamp_ms - ldr_prev_conv_ts) >= 100U)
+        {
+            ldr_prev_conv_ts = current_timestamp_ms;
+            LDR_StartConversion();
+        }
+
+        /* Report latest sample every 1000 ms */
+        if ((current_timestamp_ms - ldr_prev_report_ts) >= 1000U)
+        {
+            ldr_prev_report_ts = current_timestamp_ms;
+
+            if (LDR_IsSampleAvailable() != 0U)
+            {
+                uint32_t sample = LDR_GetRawValue();
+                char outbuf[32U];
+                uint32_t idx = 0U;
+
+                /* Build string "LDR Raw: <num>\r\n" without printf */
+                outbuf[idx++] = 'L';
+                outbuf[idx++] = 'D';
+                outbuf[idx++] = 'R';
+                outbuf[idx++] = ' ';
+                outbuf[idx++] = 'R';
+                outbuf[idx++] = 'a';
+                outbuf[idx++] = 'w';
+                outbuf[idx++] = ':';
+                outbuf[idx++] = ' ';
+
+                /* Convert sample (0..4095) to decimal */
+                uint32_t temp = sample;
+                char digits[6U];
+                uint32_t dig_cnt = 0U;
+
+                if (temp == 0U)
+                {
+                    digits[dig_cnt++] = '0';
+                }
+                else
+                {
+                    while (temp > 0U)
+                    {
+                        uint32_t rem = temp % 10U;
+                        digits[dig_cnt++] = (char)('0' + (int)rem);
+                        temp = temp / 10U;
+                    }
+                }
+
+                /* append digits in reverse */
+                while (dig_cnt > 0U)
+                {
+                    dig_cnt--;
+                    outbuf[idx++] = digits[dig_cnt];
+                }
+
+                outbuf[idx++] = '\r';
+                outbuf[idx++] = '\n';
+                outbuf[idx] = '\0';
+
+                (void)UART_SendString(outbuf);
+            }
         }
     }
 }

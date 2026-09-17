@@ -165,6 +165,17 @@ ADC polling must not be used for normal application operation.
 
 The exact ADC peripheral/channel configuration must be verified before the ADC milestone is implemented.
 
+Implementation note:
+
+This project implements an interrupt-driven ADC1 single-channel configuration for the LDR on PA1 as part of M06. Configuration summary:
+
+- ADC: ADC1
+- Pin: PA1 analog
+- Channel: ADC1 channel 1 (ADC1_IN1)
+- Sampling: software-triggered single conversions with EOC interrupt
+
+Electrical light-response polarity is awaiting physical test.
+
 ---
 
 ## 6. 7-Segment Display
