@@ -12,7 +12,7 @@ M00 | Project setup and documentation | IN PROGRESS | N/A | - | |
 M01 | Board bring-up and LEDs | PASS | Build 0 errors, 0 warnings. Hardware verified D10 -> D11 -> D12 -> D13 sequential operation. | - | |
 M02 | Four push buttons | PASS | Build 0 errors, 0 warnings. Hardware verified D2/PA10, D3/PB3, D4/PB5, D5/PB4 using pull-up active-low inputs. Individual and simultaneous button presses passed.| - | |
 M03 | 7-Segment | PASS | Build 0 errors, 0 warnings. Hardware verified 4-bit interface PC7/PA8/PB10/PA9. Display correctly cycles 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 and repeats. | - | |
-| M04 | Timer/timebase | NOT STARTED | NOT STARTED | - | |
+M04 | Timer / Timebase | PASS | Build 0 errors, 0 warnings. TIM2 hardware timebase verified on physical board. Non-blocking 7-segment diagnostic correctly cycles 0 -> 9 at approximately 1000 ms per digit using the millisecond timebase. | - | |
 | M05 | UART TX/RX Interrupt | NOT STARTED | NOT STARTED | - | |
 | M06 | LDR + ADC | NOT STARTED | NOT STARTED | - | |
 | M07 | RFID + SPI | NOT STARTED | NOT STARTED | - | |

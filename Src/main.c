@@ -21,6 +21,7 @@
 #include "button_driver.h"
 #include "led_driver.h"
 #include "seven_segment_driver.h"
+#include "timebase_driver.h"
 
 /* Private includes */
 
@@ -33,7 +34,8 @@
 /* Private union */
 
 /* Private define */
-#define MAIN_SEG7_DELAY_COUNT  (1000000U)
+#define MAIN_SEG7_UPDATE_INTERVAL_MS (1000U)
+#define MAIN_SEG7_DIGIT_MAX          (9U)
 
 /* Private macro */
 
@@ -51,20 +53,31 @@
 int main(void)
 {
     uint32_t digit_value;
+    uint32_t previous_timestamp_ms;
+    uint32_t current_timestamp_ms;
 
     LED_Init();
     BUTTON_Init();
     SEG7_Init();
+    TIMEBASE_Init();
+
+    digit_value = 0U;
+    previous_timestamp_ms = TIMEBASE_GetMilliseconds();
+    SEG7_DisplayDigit(digit_value);
 
     while (1U)
     {
-        for (digit_value = 0U; digit_value <= 9U; digit_value++)
+        current_timestamp_ms = TIMEBASE_GetMilliseconds();
+
+        if ((current_timestamp_ms - previous_timestamp_ms) >= MAIN_SEG7_UPDATE_INTERVAL_MS)
         {
+            previous_timestamp_ms = current_timestamp_ms;
             SEG7_DisplayDigit(digit_value);
 
-            /* Temporary M03 diagnostic delay. This is not application timing. */
-            for (volatile uint32_t delay_count = 0U; delay_count < MAIN_SEG7_DELAY_COUNT; delay_count++)
+            digit_value++;
+            if (digit_value > MAIN_SEG7_DIGIT_MAX)
             {
+                digit_value = 0U;
             }
         }
     }

@@ -213,7 +213,29 @@ Final interrupt configuration will be decided during the button/EXTI milestone.
 
 ---
 
-## 8. UART
+## 8. Timer / System Timebase
+
+Status: CONFIRMED FOR M04 IMPLEMENTATION
+
+The M04 system timebase uses the STM32F411RE internal 16 MHz HSI source as the project clock basis.
+
+Configuration used by the project:
+
+- HSI enabled and ready-checked
+- SYSCLK = HSI
+- HCLK = SYSCLK / 1
+- APB1 = HCLK / 1
+- TIM2 clocked from APB1
+- TIM2 prescaler = 0
+- TIM2 auto-reload register = 15999
+- Update interrupt rate = 1 kHz = 1 ms
+
+The timebase is implemented with TIM2 as an internal peripheral only.
+No additional GPIO pins are reserved for this M04 timer usage.
+
+---
+
+## 9. UART
 
 Purpose:
 
