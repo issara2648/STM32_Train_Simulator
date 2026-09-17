@@ -111,6 +111,59 @@ void LED_SetOnly(LED_Number_t led_number)
     }
 }
 
+void LED_SetState(LED_Number_t led_number, uint8_t led_state)
+{
+    switch (led_number)
+    {
+        case LED_D10:
+            if (led_state != 0U)
+            {
+                GPIOB->ODR |= LED_PIN6_OUTPUT_MASK;
+            }
+            else
+            {
+                GPIOB->ODR &= ~LED_PIN6_OUTPUT_MASK;
+            }
+            break;
+
+        case LED_D11:
+            if (led_state != 0U)
+            {
+                GPIOA->ODR |= LED_PIN7_OUTPUT_MASK;
+            }
+            else
+            {
+                GPIOA->ODR &= ~LED_PIN7_OUTPUT_MASK;
+            }
+            break;
+
+        case LED_D12:
+            if (led_state != 0U)
+            {
+                GPIOA->ODR |= LED_PIN6_OUTPUT_MASK;
+            }
+            else
+            {
+                GPIOA->ODR &= ~LED_PIN6_OUTPUT_MASK;
+            }
+            break;
+
+        case LED_D13:
+            if (led_state != 0U)
+            {
+                GPIOA->ODR |= LED_PIN5_OUTPUT_MASK;
+            }
+            else
+            {
+                GPIOA->ODR &= ~LED_PIN5_OUTPUT_MASK;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
 void LED_RunDiagnosticSequence(void)
 {
     uint32_t led_index;

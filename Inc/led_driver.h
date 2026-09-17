@@ -38,6 +38,7 @@ typedef enum LED_Number_e
 void LED_Init(void);
 void LED_ClearAll(void);
 void LED_SetOnly(LED_Number_t led_number);
+void LED_SetState(LED_Number_t led_number, uint8_t led_state);
 void LED_RunDiagnosticSequence(void);
 
 #endif

@@ -48,6 +48,20 @@ Status: CONFIRMED
 | D5 | PB4 | Context Action |
 
 The physical button meaning may change according to the current FSM state.
+### Button Electrical Behavior
+
+Status: CONFIRMED BY HARDWARE TEST
+
+The four Training Shield push buttons were verified using GPIO input pull-up configuration.
+
+Released button = logic 1.
+Pressed button = logic 0.
+
+Therefore, the buttons are treated as active-low inputs in this project.
+
+Verified during M02 hardware bring-up.
+
+Multiple simultaneous button presses were also verified successfully.
 
 ### Normal Driving
 

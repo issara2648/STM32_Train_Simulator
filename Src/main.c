@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 
+#include "button_driver.h"
 #include "led_driver.h"
 
 /* Private includes */
@@ -47,11 +48,19 @@
 /* Main function, if applicable */
 int main(void)
 {
+    uint32_t button_state;
+
     LED_Init();
+    BUTTON_Init();
 
     while (1U)
     {
-        LED_RunDiagnosticSequence();
+        button_state = BUTTON_ReadAll();
+
+        LED_SetState(LED_D10, (uint8_t)((button_state & (0x01U << 0U)) != 0U));
+        LED_SetState(LED_D11, (uint8_t)((button_state & (0x01U << 1U)) != 0U));
+        LED_SetState(LED_D12, (uint8_t)((button_state & (0x01U << 2U)) != 0U));
+        LED_SetState(LED_D13, (uint8_t)((button_state & (0x01U << 3U)) != 0U));
     }
 }
 
