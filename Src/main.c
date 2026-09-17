@@ -20,6 +20,7 @@
 
 #include "button_driver.h"
 #include "led_driver.h"
+#include "seven_segment_driver.h"
 
 /* Private includes */
 
@@ -32,6 +33,7 @@
 /* Private union */
 
 /* Private define */
+#define MAIN_SEG7_DELAY_COUNT  (1000000U)
 
 /* Private macro */
 
@@ -48,19 +50,23 @@
 /* Main function, if applicable */
 int main(void)
 {
-    uint32_t button_state;
+    uint32_t digit_value;
 
     LED_Init();
     BUTTON_Init();
+    SEG7_Init();
 
     while (1U)
     {
-        button_state = BUTTON_ReadAll();
+        for (digit_value = 0U; digit_value <= 9U; digit_value++)
+        {
+            SEG7_DisplayDigit(digit_value);
 
-        LED_SetState(LED_D10, (uint8_t)((button_state & (0x01U << 0U)) != 0U));
-        LED_SetState(LED_D11, (uint8_t)((button_state & (0x01U << 1U)) != 0U));
-        LED_SetState(LED_D12, (uint8_t)((button_state & (0x01U << 2U)) != 0U));
-        LED_SetState(LED_D13, (uint8_t)((button_state & (0x01U << 3U)) != 0U));
+            /* Temporary M03 diagnostic delay. This is not application timing. */
+            for (volatile uint32_t delay_count = 0U; delay_count < MAIN_SEG7_DELAY_COUNT; delay_count++)
+            {
+            }
+        }
     }
 }
 
