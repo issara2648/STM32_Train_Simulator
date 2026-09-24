@@ -19,11 +19,13 @@
 #include <stdint.h>
 
 #include "button_driver.h"
+#include "deadman_app.h"
+#include "exti_driver.h"
 #include "led_driver.h"
+#include "ldr_driver.h"
 #include "seven_segment_driver.h"
 #include "timebase_driver.h"
 #include "uart_driver.h"
-#include "ldr_driver.h"
 
 /* Private includes */
 
@@ -36,8 +38,8 @@
 /* Private union */
 
 /* Private define */
-#define MAIN_SEG7_UPDATE_INTERVAL_MS (1000U)
-#define MAIN_SEG7_DIGIT_MAX          (9U)
+#define MAIN_LDR_CONVERSION_INTERVAL_MS    (100U)
+#define MAIN_LDR_REPORT_INTERVAL_MS        (1000U)
 
 /* Private macro */
 
@@ -54,132 +56,95 @@
 /* Main function, if applicable */
 int main(void)
 {
-    uint32_t digit_value;
-    uint32_t previous_timestamp_ms;
     uint32_t current_timestamp_ms;
+    static uint32_t ldr_previous_conversion_ms = 0U;
+    static uint32_t ldr_previous_report_ms = 0U;
 
     LED_Init();
     BUTTON_Init();
     SEG7_Init();
     TIMEBASE_Init();
 
-    /* Initialize LDR ADC (M06) */
     LDR_Init();
-
-    /* Initialize UART (M05) and send startup diagnostic message */
     UART_Init();
-    (void)UART_SendString("STM32 Train Simulator UART Ready\r\n");
+    EXTI_DeadmanInit();
+    DEADMAN_Init();
 
-    digit_value = 0U;
-    previous_timestamp_ms = TIMEBASE_GetMilliseconds();
-    SEG7_DisplayDigit(digit_value);
+    (void)UART_SendString("STM32 Train Simulator UART Ready\r\n");
+    DEADMAN_Start(TIMEBASE_GetMilliseconds());
 
     while (1U)
     {
         current_timestamp_ms = TIMEBASE_GetMilliseconds();
+        DEADMAN_Update(current_timestamp_ms);
 
-        if ((current_timestamp_ms - previous_timestamp_ms) >= MAIN_SEG7_UPDATE_INTERVAL_MS)
+        if (DEADMAN_IsTimedOut() == 0U)
         {
-            previous_timestamp_ms = current_timestamp_ms;
-            SEG7_DisplayDigit(digit_value);
-
-            digit_value++;
-            if (digit_value > MAIN_SEG7_DIGIT_MAX)
+            if ((current_timestamp_ms - ldr_previous_conversion_ms) >= MAIN_LDR_CONVERSION_INTERVAL_MS)
             {
-                digit_value = 0U;
+                ldr_previous_conversion_ms = current_timestamp_ms;
+                LDR_StartConversion();
             }
-        }
 
-        /* UART RX processing: non-blocking echo diagnostic */
-        if (UART_IsRxAvailable() > 0U)
-        {
-            char rxch;
-            char response[8U];
-
-            rxch = UART_ReadChar();
-
-            response[0] = 'R';
-            response[1] = 'X';
-            response[2] = ':';
-            response[3] = ' ';
-            response[4] = rxch;
-            response[5] = '\r';
-            response[6] = '\n';
-            response[7] = '\0';
-
-            (void)UART_SendString(response);
-        }
-
-        /* LDR sampling: request conversion every 100 ms (non-blocking) */
-        if ((current_timestamp_ms - previous_timestamp_ms) >= MAIN_SEG7_UPDATE_INTERVAL_MS)
-        {
-            /* reuse previous_timestamp_ms tick for 1000 ms seg7 update; do nothing here */
-        }
-
-        /* Use separate timestamps for LDR conversion and reporting */
-        static uint32_t ldr_prev_conv_ts = 0U;
-        static uint32_t ldr_prev_report_ts = 0U;
-
-        /* Start conversion every 100 ms */
-        if ((current_timestamp_ms - ldr_prev_conv_ts) >= 100U)
-        {
-            ldr_prev_conv_ts = current_timestamp_ms;
-            LDR_StartConversion();
-        }
-
-        /* Report latest sample every 1000 ms */
-        if ((current_timestamp_ms - ldr_prev_report_ts) >= 1000U)
-        {
-            ldr_prev_report_ts = current_timestamp_ms;
-
-            if (LDR_IsSampleAvailable() != 0U)
+            if ((current_timestamp_ms - ldr_previous_report_ms) >= MAIN_LDR_REPORT_INTERVAL_MS)
             {
-                uint32_t sample = LDR_GetRawValue();
-                char outbuf[32U];
-                uint32_t idx = 0U;
+                ldr_previous_report_ms = current_timestamp_ms;
 
-                /* Build string "LDR Raw: <num>\r\n" without printf */
-                outbuf[idx++] = 'L';
-                outbuf[idx++] = 'D';
-                outbuf[idx++] = 'R';
-                outbuf[idx++] = ' ';
-                outbuf[idx++] = 'R';
-                outbuf[idx++] = 'a';
-                outbuf[idx++] = 'w';
-                outbuf[idx++] = ':';
-                outbuf[idx++] = ' ';
-
-                /* Convert sample (0..4095) to decimal */
-                uint32_t temp = sample;
-                char digits[6U];
-                uint32_t dig_cnt = 0U;
-
-                if (temp == 0U)
+                if (LDR_IsSampleAvailable() != 0U)
                 {
-                    digits[dig_cnt++] = '0';
-                }
-                else
-                {
-                    while (temp > 0U)
+                    uint32_t sample;
+                    char outbuf[32U];
+                    uint32_t index;
+
+                    sample = LDR_GetRawValue();
+                    index = 0U;
+
+                    outbuf[index++] = 'L';
+                    outbuf[index++] = 'D';
+                    outbuf[index++] = 'R';
+                    outbuf[index++] = ' ';
+                    outbuf[index++] = 'R';
+                    outbuf[index++] = 'a';
+                    outbuf[index++] = 'w';
+                    outbuf[index++] = ':';
+                    outbuf[index++] = ' ';
+
+                    if (sample == 0U)
                     {
-                        uint32_t rem = temp % 10U;
-                        digits[dig_cnt++] = (char)('0' + (int)rem);
-                        temp = temp / 10U;
+                        outbuf[index++] = '0';
                     }
+                    else
+                    {
+                        uint32_t temp;
+                        char digits[6U];
+                        uint32_t digit_count;
+
+                        temp = sample;
+                        digit_count = 0U;
+
+                        while (temp > 0U)
+                        {
+                            uint32_t remainder;
+
+                            remainder = temp % 10U;
+                            digits[digit_count] = (char)('0' + (int)remainder);
+                            digit_count++;
+                            temp = temp / 10U;
+                        }
+
+                        while (digit_count > 0U)
+                        {
+                            digit_count--;
+                            outbuf[index++] = digits[digit_count];
+                        }
+                    }
+
+                    outbuf[index++] = '\r';
+                    outbuf[index++] = '\n';
+                    outbuf[index] = '\0';
+
+                    (void)UART_SendString(outbuf);
                 }
-
-                /* append digits in reverse */
-                while (dig_cnt > 0U)
-                {
-                    dig_cnt--;
-                    outbuf[idx++] = digits[dig_cnt];
-                }
-
-                outbuf[idx++] = '\r';
-                outbuf[idx++] = '\n';
-                outbuf[idx] = '\0';
-
-                (void)UART_SendString(outbuf);
             }
         }
     }
